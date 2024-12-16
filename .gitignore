@@ -1,0 +1,7 @@
+__pycache__/
+data/
+model/
+result/
+runs/
+train/
+
