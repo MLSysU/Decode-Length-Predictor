@@ -1,7 +1,5 @@
-__pycache__/
+**/__pycache__/
 data/
-model/
-result/
-runs/
+models/pretrained/
 train/
-
+results/
