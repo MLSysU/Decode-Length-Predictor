@@ -16,7 +16,7 @@ class BertRegressionModel(nn.Module):
         self.fc1 = nn.Linear(hidden_dim, hidden_dim)
         self.fc2 = nn.Linear(hidden_dim, 1)
 
-    def forward(self, input_ids, attention_mask):
+    def forward(self, input_ids, attention_mask=None):
         outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
         # Obtain the representations of [CLS] heads
         # outputs.last_hidden_state: [batch_size, sequence_size, hidden_size]
