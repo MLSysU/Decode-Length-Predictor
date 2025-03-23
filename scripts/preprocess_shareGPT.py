@@ -25,7 +25,7 @@ def inference(args: PreprocessArgs):
     # skip the inference step
     if args.skip_inference:
         # load inference dataset
-        inference_dataset = Dataset.load_from_disk(inference_path)
+        inference_dataset = Dataset.from_json(inference_path)
         return inference_dataset
 
     # load shareGPT
@@ -61,8 +61,8 @@ def inference(args: PreprocessArgs):
         }
     )
     inference_dataset = Dataset.from_pandas(df)
-    os.makedirs(inference_path, exist_ok=True)
-    inference_dataset.save_to_disk(inference_path)
+    os.makedirs(os.path.dirname(inference_path), exist_ok=True)
+    inference_dataset.to_json(inference_path)
     return inference_dataset
 
 

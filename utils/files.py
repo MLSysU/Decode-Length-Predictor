@@ -32,7 +32,7 @@ def get_inference_dataset_path(root_path: str, dataset_type: str, llm: str):
         "data",
         dataset_type,
         llm.split("/")[-1],
-        "raw",
+        "raw.json",
     )
 
 
