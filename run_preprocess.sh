@@ -4,11 +4,11 @@ export PYTHONPATH=$PWD:$PYTHONPATH
 
 DATASET="data/shareGPT/ShareGPT_V3_unfiltered_cleaned_split.json"
 DATASET_TYPE="shareGPT"
-LLM="meta-llama/Llama-2-7b-chat-hf"
-BERT="google-bert/bert-base-multilingual-uncased"
+LLM="/HOME/nsccgz_zgchen/nsccgz_zgchen_6/HDD_POOL/zhb/QwQ-32B"
+BERT="/HOME/nsccgz_zgchen/nsccgz_zgchen_6/HDD_POOL/zhb/google-bert--bert-base-multilingual-uncased"
 
-INFERENCE_ARGS="--max_tokens 100000 --temperature 0.8 --top_p 0.95 --tensor_parallel_size 1"
-SKIP_FLAG="--skip_inference"
+INFERENCE_ARGS="--max_tokens 40960 --tensor_parallel_size 8"
+# SKIP_FLAG="--skip_inference"
 
 set -x
 python scripts/preprocess_shareGPT.py \

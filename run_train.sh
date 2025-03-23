@@ -2,10 +2,10 @@
 
 export PYTHONPATH=$PWD:$PYTHONPATH
 
-DATASET="data/shareGPT/ShareGPT_V3_unfiltered_cleaned_split.json"]
+DATASET="data/shareGPT/ShareGPT_V3_unfiltered_cleaned_split.json"
 DATASET_TYPE="shareGPT"
-LLM="meta-llama/Llama-2-7b-chat-hf"
-BERT="google-bert/bert-base-multilingual-uncased"
+LLM="/HOME/nsccgz_zgchen/nsccgz_zgchen_6/HDD_POOL/zhb/QwQ-32B"
+BERT="/HOME/nsccgz_zgchen/nsccgz_zgchen_6/HDD_POOL/zhb/google-bert--bert-base-multilingual-uncased"
 
 TRAIN_ARGS="--epoch 4 --train_bs 32 --validate_bs 32 --bert_lr 5e-5 --lr 1e-3"
 MODEL_ARGS="--hidden_dim 128"

@@ -6,6 +6,18 @@ from datasets import Dataset
 from transformers import AutoTokenizer
 from argparse import ArgumentParser
 
+import asyncio
+import io
+import os
+
+from PIL import Image
+import requests
+import sglang as sgl
+
+from sglang.srt.conversation import chat_templates
+from sglang.test.test_utils import is_in_ci
+from sglang.utils import async_stream_and_merge, stream_and_merge
+
 root_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(root_path)
 from utils import (
@@ -28,21 +40,12 @@ def inference(args: PreprocessArgs):
         inference_dataset = Dataset.load_from_disk(inference_path)
         return inference_dataset
 
+    tokenizer = AutoTokenizer.from_pretrained(args.llm)
     # load shareGPT
     conversations = load_shareGPT_first_round(args.dataset)
+    llm = sgl.Engine(model_path=args.llm, tp_size = args.tensor_parallel_size)
+    sampling_params = {"max_tokens", args.max_tokens}
 
-    # load model
-    from vllm import LLM, SamplingParams
-
-    tokenizer = AutoTokenizer.from_pretrained(args.llm)
-    sampling_params = SamplingParams(
-        max_tokens=args.max_tokens,
-    )
-    llm = LLM(
-        args.llm,
-        tensor_parallel_size=args.tensor_parallel_size,
-        enforce_eager=True,
-    )
 
     # inference
     messages = [[{"role": "user", "content": conversation}] for conversation in conversations]
@@ -50,8 +53,9 @@ def inference(args: PreprocessArgs):
         tokenizer.apply_chat_template(conversation=message, tokenize=False, add_generation_prompt=True) for message in messages
     ]
     outputs = llm.generate(formatted_prompts, sampling_params)
-    responses = [output.outputs[0].text for output in outputs]
-
+    print(outputs)
+    responses = [output['text'] for output in outputs]
+    print(responses)
     # save dataset
     df = pd.DataFrame(
         {
