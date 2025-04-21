@@ -62,9 +62,15 @@ class PreprocessArgs:
         )
         parser.add_argument(
             "--top_p",
-            type=float,
-            default=0.95,
+            type=Optional[float],
+            default=None,
             help="Top_p of inference",
+        )
+        parser.add_argument(
+            "--top_k",
+            type=Optional[int],
+            default=None,
+            help="Top_k of inference",
         )
         parser.add_argument(
             "--tensor_parallel_size",

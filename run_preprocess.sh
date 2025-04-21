@@ -7,7 +7,7 @@ DATASET_TYPE="shareGPT"
 LLM="meta-llama/Llama-2-7b-chat-hf"
 BERT="google-bert/bert-base-multilingual-uncased"
 
-INFERENCE_ARGS="--max_tokens 100000 --temperature 0.8 --top_p 0.95 --tensor_parallel_size 1"
+INFERENCE_ARGS="--max_tokens 100000 --temperature 0.8 --top_p 0.95 --top_k 20 --tensor_parallel_size 1"
 SKIP_FLAG="--skip_inference"
 
 set -x

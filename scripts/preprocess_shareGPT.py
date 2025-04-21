@@ -39,6 +39,7 @@ def inference(args: PreprocessArgs):
         max_tokens=args.max_tokens,
         temperature=args.temperature,
         top_p=args.top_p,
+        top_k=args.top_k,
     )
     llm = LLM(
         args.llm,
@@ -70,8 +71,6 @@ def main():
     parser = ArgumentParser()
     args = PreprocessArgs.add_cli_args(parser).parse_args()
     preprocess_args = PreprocessArgs.from_cli_args(args)
-
-    assert preprocess_args.dataset_type == "shareGPT", f"'{__file__}' Only support shareGPT dataset"
 
     # inference
     inference_dataset = inference(preprocess_args)
