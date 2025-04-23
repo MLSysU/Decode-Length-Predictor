@@ -35,6 +35,15 @@ class Preprocess:
     def set_cls_thresholds(self, dataset: Dataset):
         output_token_lens = dataset["output_token_length"]
         self.cls_thresholds = np.percentile(output_token_lens, [25, 50, 75, 99]).astype(int).tolist() + [float("inf")]
+        # get cls mean output token length
+        cls_lengths = [[] for _ in range(len(self.cls_thresholds))]
+        for length in output_token_lens:
+            for i, thresh in enumerate(self.cls_thresholds):
+                if length <= thresh:
+                    cls_lengths[i].append(length)
+                    break
+        self.cls_mean_len = [np.mean(lengths).astype(float) for lengths in cls_lengths]
+        
 
     def split_dataset(self, dataset: Dataset):
         # train : validation : test = 6 : 2 : 2
@@ -57,6 +66,6 @@ class Preprocess:
         dataset = dataset.map(self.set_label_function, num_proc=32)
         dataset = dataset.shuffle(seed=1)
         train_dataset, validation_dataset, test_dataset = self.split_dataset(dataset)
-        return train_dataset, validation_dataset, test_dataset, self.cls_thresholds
+        return train_dataset, validation_dataset, test_dataset, self.cls_thresholds, self.cls_mean_len
 
 

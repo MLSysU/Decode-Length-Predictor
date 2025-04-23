@@ -18,8 +18,9 @@ from utils import (
     TrainArgs,
     Parallel,
     get_dataset_path,
-    load_cls_thresholds,
+    load_list_from_json,
     get_cls_thresholds_path,
+    get_cls_mean_len_path,
     get_model_path,
 )
 
@@ -60,8 +61,9 @@ def load_data(args: TrainArgs, parallel: Parallel):
 
 
 def init_model(args: TrainArgs, parallel: Parallel):
-    cls_thresholds = load_cls_thresholds(get_cls_thresholds_path(root_path, args.dataset_type, args.llm, args.bert))
-    model = BertRegressionModel.from_bert(args.bert, cls_thresholds, args.hidden_dim).to(parallel.device)
+    cls_thresholds = load_list_from_json(get_cls_thresholds_path(root_path, args.dataset_type, args.llm, args.bert))
+    cls_mean_len = load_list_from_json(get_cls_mean_len_path(root_path, args.dataset_type, args.llm, args.bert))
+    model = BertRegressionModel.from_bert(args.bert, cls_thresholds, cls_mean_len, args.hidden_dim).to(parallel.device)
     model = DDP(model, device_ids=[parallel.rank], output_device=parallel.rank, find_unused_parameters=True)
     return model
 

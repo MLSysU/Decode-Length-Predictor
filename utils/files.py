@@ -15,15 +15,15 @@ def load_shareGPT_first_round(path: str):
     return conversations
 
 
-def save_cls_thresholds(cls_thresholds: list, path: str):
+def save_list_to_json(l: list, path: str):
     with open(path, "w") as file:
-        json.dump(cls_thresholds, file)
+        json.dump(l, file)
 
 
-def load_cls_thresholds(path: str):
+def load_list_from_json(path: str):
     with open(path, "r") as file:
-        cls_thresholds = json.load(file)
-    return cls_thresholds
+        l = json.load(file)
+    return l
 
 
 def get_inference_dataset_path(root_path: str, dataset_type: str, llm: str):
@@ -55,6 +55,17 @@ def get_cls_thresholds_path(root_path: str, dataset_type: str, llm: str, bert: s
         llm.split("/")[-1],
         bert.split("/")[-1],
         "cls_thresholds.json",
+    )
+
+
+def get_cls_mean_len_path(root_path: str, dataset_type: str, llm: str, bert: str):
+    return os.path.join(
+        root_path,
+        "data",
+        dataset_type,
+        llm.split("/")[-1],
+        bert.split("/")[-1],
+        "cls_mean_len.json",
     )
 
 

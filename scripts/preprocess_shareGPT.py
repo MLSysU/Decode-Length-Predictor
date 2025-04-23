@@ -11,11 +11,12 @@ sys.path.append(root_path)
 from utils import (
     PreprocessArgs,
     Preprocess,
-    save_cls_thresholds,
+    save_list_to_json,
     load_shareGPT_first_round,
     get_inference_dataset_path,
     get_dataset_path,
     get_cls_thresholds_path,
+    get_cls_mean_len_path,
 )
 
 
@@ -76,7 +77,7 @@ def main():
     inference_dataset = inference(preprocess_args)
 
     # preprocess
-    train_dataset, validation_dataset, test_dataset, cls_thresholds = Preprocess(
+    train_dataset, validation_dataset, test_dataset, cls_thresholds, cls_mean_len = Preprocess(
         preprocess_args.bert, preprocess_args.llm
     ).preprocess(inference_dataset)
 
@@ -93,7 +94,9 @@ def main():
 
     # save cls_thresholds
     cls_thresholds_path = get_cls_thresholds_path(root_path, args.dataset_type, preprocess_args.llm, preprocess_args.bert)
-    save_cls_thresholds(cls_thresholds, cls_thresholds_path)
+    save_list_to_json(cls_thresholds, cls_thresholds_path)
+    cls_mean_len_path = get_cls_mean_len_path(root_path, args.dataset_type, preprocess_args.llm, preprocess_args.bert)
+    save_list_to_json(cls_mean_len, cls_mean_len_path)
 
 
 if __name__ == "__main__":

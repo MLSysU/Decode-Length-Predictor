@@ -109,7 +109,7 @@ def save_output(predictions, cls_predictions, labels, latency_list, output_token
     output_df.to_csv(os.path.join(result_path, "output.csv"), index=False)
 
 
-def save_benchmark(test_dataset, predict_interval, result_path):
+def save_benchmark(test_dataset, predict_interval, predict_mean_len, result_path):
     predict_left, predict_right = predict_interval
 
     benchmark_df = pd.DataFrame(
@@ -119,8 +119,9 @@ def save_benchmark(test_dataset, predict_interval, result_path):
             "output": test_dataset["output"],
             "input_token_length": test_dataset["input_token_length"],
             "output_token_length": test_dataset["output_token_length"],
-            "PredictLeft": predict_left,
-            "PredictRight": predict_right,
+            "predict_left": predict_left,
+            "predict_right": predict_right,
+            "predict_mean_len": predict_mean_len,
         }
     )
     benchmark_df.to_json(os.path.join(result_path, "benchmark.json"), orient="records", lines=False, indent=4)
@@ -155,7 +156,8 @@ def main():
 
     # save benchmark
     predict_interval = model.get_interval(predictions)
-    save_benchmark(test_dataset, predict_interval, result_path)
+    predict_mean_len = model.get_mean_len(predictions)
+    save_benchmark(test_dataset, predict_interval, predict_mean_len, result_path)
 
 
 if __name__ == "__main__":

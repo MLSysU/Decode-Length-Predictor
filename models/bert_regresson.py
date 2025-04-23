@@ -5,10 +5,11 @@ from transformers import BertModel
 
 
 class BertRegressionModel(nn.Module):
-    def __init__(self, bert: BertModel, cls_thresholds: list, hidden_dim: int):
+    def __init__(self, bert: BertModel, cls_thresholds: list, cls_mean_len: list, hidden_dim: int):
         super().__init__()
         self.ceil_thresholds = torch.tensor(cls_thresholds)
         self.floor_thresholds = torch.tensor([0] + cls_thresholds[:-1])
+        self.cls_mean_len = torch.tensor(cls_mean_len)
         self.bert = bert
         # The output layer that takes the [CLS] representation and gives an output
         self.cls = nn.Linear(self.bert.config.hidden_size, hidden_dim)
@@ -41,7 +42,16 @@ class BertRegressionModel(nn.Module):
         cls_tensor = self.get_cls(input)
         floor_tensor = torch.index_select(self.floor_thresholds, 0, cls_tensor)
         ceil_tensor = torch.index_select(self.ceil_thresholds, 0, cls_tensor)
+
         return floor_tensor, ceil_tensor
+    
+    def get_mean_len(self, input: torch.Tensor) -> torch.Tensor:
+        """
+        Return the mean predicted output length of the input tensor based on the class.
+        """
+        cls_tensor = self.get_cls(input)
+        mean_len_tensor = torch.index_select(self.cls_mean_len, 0, cls_tensor)
+        return mean_len_tensor
 
     def save_pretrained(self, save_directory: str):
         """
@@ -50,6 +60,7 @@ class BertRegressionModel(nn.Module):
         state_dict = {
             "bert_config": self.bert.config,
             "cls_thresholds": self.ceil_thresholds.tolist(),
+            "cls_mean_len": self.cls_mean_len.tolist(),
             "hidden_dim": self.cls.out_features,
             "state_dict": self.state_dict(),
         }
@@ -61,16 +72,18 @@ class BertRegressionModel(nn.Module):
         """
         Instantiate a BertRegressionModel from a pre-trained model.
         """
-        state_dict = torch.load(os.path.join(pretrained_model_name_or_path, "model.pth"), weights_only=False)
+        state_dict = torch.load(os.path.join(pretrained_model_name_or_path, "model.pth"), weights_only=False, map_location="cpu")
         bert = BertModel(state_dict["bert_config"])
-        model = cls(bert, state_dict["cls_thresholds"], state_dict["hidden_dim"])
+        model = cls(bert, state_dict["cls_thresholds"], state_dict["cls_mean_len"], state_dict["hidden_dim"])
         model.load_state_dict(state_dict["state_dict"])
         return model
 
     @classmethod
-    def from_bert(cls, bert_model_name_or_path: str, cls_thresholds: list, hidden_dim: int = 128) -> "BertRegressionModel":
+    def from_bert(
+        cls, bert_model_name_or_path: str, cls_thresholds: list, cls_mean_len: list, hidden_dim: int = 128
+    ) -> "BertRegressionModel":
         """
         Instantiate a BertRegressionModel from a pre-trained Bert model for training.
         """
         bert = BertModel.from_pretrained(bert_model_name_or_path)
-        return cls(bert, cls_thresholds, hidden_dim)
+        return cls(bert, cls_thresholds, cls_mean_len, hidden_dim)
