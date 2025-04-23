@@ -15,9 +15,9 @@ class PreprocessArgs:
     llm: str
     bert: str
     max_tokens: int
-    temperature: Optional[float]
-    top_p: Optional[float]
-    top_k: Optional[int]
+    temperature: float
+    top_p: float
+    top_k: int
     tensor_parallel_size: int
     skip_inference: bool = False
 
@@ -58,19 +58,19 @@ class PreprocessArgs:
         parser.add_argument(
             "--temperature",
             type=float,
-            default=None,
+            default=1,
             help="Temperature of inference",
         )
         parser.add_argument(
             "--top_p",
             type=float,
-            default=None,
+            default=1,
             help="Top_p of inference",
         )
         parser.add_argument(
             "--top_k",
             type=int,
-            default=None,
+            default=-1,
             help="Top_k of inference",
         )
         parser.add_argument(
