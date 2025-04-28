@@ -44,7 +44,7 @@ def test_latency(model_path: str):
     device = torch.device("cuda")
 
     # load model
-    model = BertRegressionModel.from_pretrained(model_path)
+    model = BertRegressionModel.from_pretrained(model_path).half()
     tokenizer = AutoTokenizer.from_pretrained(model_path)
 
     model = model.to(device)

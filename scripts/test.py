@@ -139,7 +139,7 @@ def main():
         get_dataset_path(root_path, test_args.dataset_type, test_args.llm, test_args.bert, "test")
     )
     # load model
-    model = BertRegressionModel.from_pretrained(get_model_path(root_path, test_args.dataset_type, test_args.llm, test_args.bert))
+    model = BertRegressionModel.from_pretrained(get_model_path(root_path, test_args.dataset_type, test_args.llm, test_args.bert)).half()
 
     # predict
     predictions, labels, latency_list = test(model, test_dataset, test_args)
