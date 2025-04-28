@@ -1,6 +1,5 @@
 import os
 import sys
-import time
 import random
 import torch
 from tqdm import tqdm, trange
@@ -56,18 +55,21 @@ def test_latency(model_path: str):
     for _ in trange(10, desc="Warmup"):
         model(input_ids)
 
-    batch_sizes = [1, 2, 4, 8, 16, 32, 64, 128, 256]
+    batch_sizes = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048]
     latency_dict = {bs: 0.0 for bs in batch_sizes}
 
+    start_event, end_event = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
     for bs in tqdm(batch_sizes, desc="Test Latency"):
-        test_num = 50
+        test_num = 10
         accum_latency = 0.0
         for _ in range(test_num):
-            input_ids = generate_random_input_ids(tokenizer, bs).to(device)
-            start_time = time.perf_counter()
+            input_ids = generate_random_input_ids(tokenizer, bs, 512).to(device)
+            start_event.record()
             model(input_ids)
-            end_time = time.perf_counter()
-            accum_latency += (end_time - start_time) * 1e3
+            end_event.record()
+            torch.cuda.synchronize(device)
+            elapsed_time = start_event.elapsed_time(end_event)
+            accum_latency += elapsed_time
         latency_dict[bs] = accum_latency / test_num
         tqdm.write(f"Batch Size {bs}: {latency_dict[bs]:.3f} ms")
 

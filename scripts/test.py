@@ -1,6 +1,5 @@
 import os
 import sys
-import time
 import datasets
 import evaluate
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
@@ -42,15 +41,18 @@ def test(
     attention_mask_list = test_dataset["attention_mask"]
     prediction_list = []
     latency_list = []
+    start_event, end_event = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
     with torch.inference_mode():
         for i in trange(len(test_dataset), desc="Predicting"):
             input_ids = input_ids_list[i].unsqueeze(0).to(device)
             attention_mask = attention_mask_list[i].unsqueeze(0).to(device)
-            start_time = time.perf_counter()
+            start_event.record()
             prediction = model(input_ids, attention_mask)
-            end_time = time.perf_counter()
+            end_event.record()
+            torch.cuda.synchronize()
             prediction_list.extend(prediction)
-            latency_list.append((end_time - start_time) * 1e3)
+            elasped_time = start_event.elapsed_time(end_event)
+            latency_list.append(elasped_time)
 
     print(
         f"latency: mean(ms): {np.mean(latency_list):.4f}, max(ms): {np.max(latency_list):.4f}, min(ms): {np.min(latency_list):.4f}"
